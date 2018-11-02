@@ -33,70 +33,103 @@ def main():
     # create a game time clock
     clock = pygame.time.Clock()
 
+    # created car image
     carImg = pygame.image.load('./images/car.png')
+
+    def ai_car(x,y):
+        gameDisplay.blit(carImg, (x, y))
 
     def car(x, y):
         # blit draws on to the surface
         gameDisplay.blit(carImg, (x, y))
 
-    x = (display_width * 0.45)
-    y = (display_height * 0.8)
+    def game_loop():
+        x = (display_width * 0.45)
+        y = (display_height * 0.8)
 
-    x_change = 0
-    y_change = 0
+        x_change = 0
+        y_change = 0
 
-    # define a variable to control the main loop
-    running = True
+        ai_x = display_width * 0.3
+        ai_y = display_height * 0.1
 
-    while running:
-        # event handling, gets all event from the event queue (key, mouse click, etc per frame per sec)
-        for event in pygame.event.get():
-            # only do something if the event is of type QUIT
-            if event.type == pygame.QUIT:
-                # change the value to False, to exit the main loop
-                running = False
+        ai_x_change = 0
+        ai_y_change = 10
 
-            # checking keyboard inputs
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    x_change = -10
-                elif event.key == pygame.K_RIGHT:
-                    x_change = 10
+        # define a variable to control the main loop
+        running = True
 
-                if event.key == pygame.K_UP:
-                    y_change = -10
-                elif event.key == pygame.K_DOWN:
-                    y_change = 10
+        while running:
+            # event handling, gets all event from the event queue (key, mouse click, etc per frame per sec)
+            for event in pygame.event.get():
+                # only do something if the event is of type QUIT
+                if event.type == pygame.QUIT:
+                    # change the value to False, to exit the main loop
+                    running = False
 
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                    x_change = 0
-                elif event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-                    y_change = 0
+                # checking keyboard inputs
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LEFT:
+                        x_change -= 10
+                        # x = coord_sub(x)
+                    elif event.key == pygame.K_RIGHT:
+                        x_change += 10
+                        # x = coord_add(x)
 
-        x += x_change
-        y += y_change
+                    if event.key == pygame.K_UP:
+                        y_change -= 10
+                        # y = coord_sub(y)
+                    elif event.key == pygame.K_DOWN:
+                        y_change += 10
+                        # y = coord_add(y)
 
-        if x < boundary_left:
-            x = boundary_left
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                        x_change = 0
+                    elif event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                        y_change = 0
 
-        if x > boundary_right:
-            x = boundary_right
+            x += x_change
+            y += y_change
 
-        if y > boundary_bottom:
-            y = boundary_bottom
+            ai_y += ai_y_change
 
-        if y < boundary_top:
-            y = boundary_top
+            x = boundary_check_x(x, boundary_left, boundary_right)
+            y = boundary_check_y(y, boundary_top, boundary_bottom)
 
-        gameDisplay.fill(white)
-        car(x, y)
-        # for updating the entire the whole surface (the window), use pygame.display.flip()
-        # for updating a part of the surface (window), use pygame.display.update(parameter)
-        pygame.display.update()
-        # defining fps, parameter is the fps
-        clock.tick(60)
+            # ai_x = boundary_check_x(ai_x, boundary_left, boundary_right)
+            ai_y = ai_boundary_check_y(ai_y, boundary_top, boundary_bottom)
 
+
+            gameDisplay.fill(white)
+            car(x, y)
+            ai_car(ai_x, ai_y)
+            # for updating the entire the whole surface (the window), use pygame.display.flip()
+            # for updating a part of the surface (window), use pygame.display.update(parameter)
+            pygame.display.update()
+            # defining fps, parameter is the fps
+            clock.tick(60)
+
+    def ai_boundary_check_y(param_to_check, boundary_top, boundary_bottom):
+        if param_to_check > boundary_bottom:
+            param_to_check = boundary_top
+        return param_to_check
+
+    def boundary_check_x(param_to_check, boundary_left, boundary_right):
+        if param_to_check < boundary_left:
+            param_to_check = boundary_left
+        if param_to_check > boundary_right:
+            param_to_check = boundary_right
+        return param_to_check
+
+    def boundary_check_y(param_to_check, boundary_top, boundary_bottom):
+        if param_to_check > boundary_bottom:
+            param_to_check = boundary_bottom
+        if param_to_check < boundary_top:
+            param_to_check = boundary_top
+        return param_to_check
+
+    game_loop()
     pygame.quit()
     quit()
 
