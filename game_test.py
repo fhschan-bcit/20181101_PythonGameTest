@@ -15,10 +15,13 @@ def main():
     green = (0, 255, 0)
     blue = (0, 0, 255)
 
+    car_width = 100
+    car_height = 97
+
     boundary_top = 0
     boundary_left = 0
-    boundary_right = display_width - 100  # 100px is the width of the car image
-    boundary_bottom = display_height - 98 # 98px is the height of the car image
+    boundary_right = display_width - car_width  # 100px is the width of the car image
+    boundary_bottom = display_height - car_height  # 98px is the height of the car image
 
     # load and set logo
     logo = pygame.image.load('./images/car.png')
@@ -36,12 +39,12 @@ def main():
     # created car image
     carImg = pygame.image.load('./images/car.png')
 
-    def ai_car(x,y):
-        gameDisplay.blit(carImg, (x, y))
+    def ai_car(ai_x, ai_y):
+        gameDisplay.blit(carImg, (ai_x, ai_y))
 
-    def car(x, y):
+    def car(player_x, player_y):
         # blit draws on to the surface
-        gameDisplay.blit(carImg, (x, y))
+        gameDisplay.blit(carImg, (player_x, player_y))
 
     def game_loop():
         x = (display_width * 0.45)
@@ -54,7 +57,7 @@ def main():
         ai_y = display_height * 0.1
 
         ai_x_change = 0
-        ai_y_change = 10
+        ai_y_change = 5
 
         # define a variable to control the main loop
         running = True
@@ -100,8 +103,8 @@ def main():
             # ai_x = boundary_check_x(ai_x, boundary_left, boundary_right)
             ai_y = ai_boundary_check_y(ai_y, boundary_top, boundary_bottom)
 
-
             gameDisplay.fill(white)
+            running = ai_player_collision_check(x, y, ai_x, ai_y)
             car(x, y)
             ai_car(ai_x, ai_y)
             # for updating the entire the whole surface (the window), use pygame.display.flip()
@@ -110,23 +113,42 @@ def main():
             # defining fps, parameter is the fps
             clock.tick(60)
 
-    def ai_boundary_check_y(param_to_check, boundary_top, boundary_bottom):
-        if param_to_check > boundary_bottom:
-            param_to_check = boundary_top
+    def ai_player_collision_check(player_x, player_y, ai_x, ai_y):
+        """Check AI car and player car collision"""
+        p_left = player_x
+        p_right = player_x + car_width
+        p_top = player_y
+        p_bottom = player_y + car_height
+
+        ai_left = ai_x
+        ai_right = ai_x + car_width
+        ai_top = ai_y
+        ai_bottom = ai_y + car_height
+
+        if ((ai_left <= p_left <= ai_right) or (ai_left <= p_right <= ai_right)) and (
+                ((ai_top <= p_top <= ai_bottom) or (ai_top <= p_bottom <= ai_bottom))):
+            return False
+        else:
+            return True
+
+    def ai_boundary_check_y(param_to_check, boundary_top_ai, boundary_bottom_ai):
+        """Set the AI car's boundary if it reaches the boundary"""
+        if param_to_check > boundary_bottom_ai:
+            param_to_check = boundary_top_ai
         return param_to_check
 
-    def boundary_check_x(param_to_check, boundary_left, boundary_right):
-        if param_to_check < boundary_left:
-            param_to_check = boundary_left
-        if param_to_check > boundary_right:
-            param_to_check = boundary_right
+    def boundary_check_x(param_to_check, boundary_left_player, boundary_right_player):
+        if param_to_check < boundary_left_player:
+            param_to_check = boundary_left_player
+        if param_to_check > boundary_right_player:
+            param_to_check = boundary_right_player
         return param_to_check
 
-    def boundary_check_y(param_to_check, boundary_top, boundary_bottom):
-        if param_to_check > boundary_bottom:
-            param_to_check = boundary_bottom
-        if param_to_check < boundary_top:
-            param_to_check = boundary_top
+    def boundary_check_y(param_to_check, boundary_top_player, boundary_bottom_player):
+        if param_to_check > boundary_bottom_player:
+            param_to_check = boundary_bottom_player
+        if param_to_check < boundary_top_player:
+            param_to_check = boundary_top_player
         return param_to_check
 
     game_loop()
