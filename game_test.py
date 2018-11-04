@@ -1,4 +1,5 @@
 import pygame
+import time
 
 
 def main():
@@ -39,13 +40,6 @@ def main():
     # created car image
     carImg = pygame.image.load('./images/car.png')
 
-    def ai_car(ai_x, ai_y):
-        gameDisplay.blit(carImg, (ai_x, ai_y))
-
-    def car(player_x, player_y):
-        # blit draws on to the surface
-        gameDisplay.blit(carImg, (player_x, player_y))
-
     def game_loop():
         x = (display_width * 0.45)
         y = (display_height * 0.8)
@@ -68,7 +62,9 @@ def main():
                 # only do something if the event is of type QUIT
                 if event.type == pygame.QUIT:
                     # change the value to False, to exit the main loop
-                    running = False
+                    # running = False
+                    pygame.quit()
+                    quit()
 
                 # checking keyboard inputs
                 if event.type == pygame.KEYDOWN:
@@ -104,14 +100,40 @@ def main():
             ai_y = ai_boundary_check_y(ai_y, boundary_top, boundary_bottom)
 
             gameDisplay.fill(white)
-            running = ai_player_collision_check(x, y, ai_x, ai_y)
             car(x, y)
             ai_car(ai_x, ai_y)
+            ai_player_collision_check(x, y, ai_x, ai_y)
             # for updating the entire the whole surface (the window), use pygame.display.flip()
             # for updating a part of the surface (window), use pygame.display.update(parameter)
             pygame.display.update()
             # defining fps, parameter is the fps
             clock.tick(60)
+
+    def ai_car(ai_x, ai_y):
+        gameDisplay.blit(carImg, (ai_x, ai_y))
+
+    def car(player_x, player_y):
+        # blit draws on to the surface
+        gameDisplay.blit(carImg, (player_x, player_y))
+
+    def text_objects(text, font):
+        # font.render accepts the font, anti-aliasing, color
+        text_surface = font.render(text, True, black)
+        return text_surface, text_surface.get_rect()
+
+    def message_display(text_to_display):
+        text = pygame.font.Font('freesansbold.ttf', 100)
+        text_surf, text_rect = text_objects(text_to_display, text)
+        text_rect.center = ((display_width/2), (display_height/2))
+        gameDisplay.blit(text_surf, text_rect)
+        pygame.display.update()
+        pygame.event.get()
+        pygame.time.delay(2000)
+        game_loop()
+
+
+    def crash():
+        message_display('You Crashed!')
 
     def ai_player_collision_check(player_x, player_y, ai_x, ai_y):
         """Check AI car and player car collision"""
@@ -127,9 +149,10 @@ def main():
 
         if ((ai_left <= p_left <= ai_right) or (ai_left <= p_right <= ai_right)) and (
                 ((ai_top <= p_top <= ai_bottom) or (ai_top <= p_bottom <= ai_bottom))):
-            return False
-        else:
-            return True
+            crash()
+            # return False
+        # else:
+            # return True
 
     def ai_boundary_check_y(param_to_check, boundary_top_ai, boundary_bottom_ai):
         """Set the AI car's boundary if it reaches the boundary"""
@@ -152,8 +175,6 @@ def main():
         return param_to_check
 
     game_loop()
-    pygame.quit()
-    quit()
 
 
 if __name__ == '__main__':
